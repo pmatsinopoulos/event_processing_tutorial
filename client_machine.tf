@@ -40,11 +40,11 @@ data "aws_ami" "client" {
 }
 
 data "aws_key_pair" "client" {
-  key_name = "me-ireland"
+  key_name = var.aws_ec2_client.key_pair
 }
 
 resource "aws_security_group" "client" {
-  name        = "msk-demo-security-group-client"
+  name        = "${var.project}-security-group-client"
   description = "Allow SSH traffic from anywhere to anywhere"
   vpc_id      = aws_vpc.msk_demo.id
   ingress {
@@ -62,16 +62,16 @@ resource "aws_security_group" "client" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    "environment" = "learning"
-    "Name"        = "msk-demo-security-group-client"
-    "project"     = "msk-demo"
+    "environment" = var.environment
+    "Name"        = "${var.project}-security-group-client"
+    "project"     = var.project
   }
 }
 
 resource "aws_instance" "client" {
   ami               = data.aws_ami.client.id
-  instance_type     = "t2.micro"
-  availability_zone = "eu-west-1a"
+  instance_type     = var.aws_ec2_client.instance_type
+  availability_zone = "${var.region}a"
   subnet_id         = aws_subnet.msk_demo1.id
   vpc_security_group_ids = [
     aws_vpc.msk_demo.default_security_group_id,
@@ -81,8 +81,8 @@ resource "aws_instance" "client" {
   associate_public_ip_address = true
 
   tags = {
-    "environment" = "learning"
-    "Name"        = "msk-demo-client-machine"
-    "project"     = "msk-demo"
+    "environment" = var.environment
+    "Name"        = "${var.project}-client-machine"
+    "project"     = var.project
   }
 }
