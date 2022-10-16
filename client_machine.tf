@@ -72,7 +72,7 @@ resource "aws_instance" "client" {
   ami               = data.aws_ami.client.id
   instance_type     = var.aws_ec2_client.instance_type
   availability_zone = "${var.region}a"
-  subnet_id         = aws_subnet.msk_demo1.id
+  subnet_id         = aws_subnet.msk_demo[1].id
   vpc_security_group_ids = [
     aws_vpc.msk_demo.default_security_group_id,
     aws_security_group.client.id

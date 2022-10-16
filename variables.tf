@@ -35,9 +35,12 @@ variable "vpc_cidr_block" {
   nullable    = false
 }
 
-variable "vpc_subnet_cidr_blocks" {
-  type        = map(string)
-  description = "A map of CIDR blocks for each one of the three subnets."
+variable "vpc_subnets" {
+  type = map(object({
+    cidr_block    = string
+    region_suffix = string
+  }))
+  description = "A map of CIDR blocks and regions for each one of the three subnets."
   nullable    = false
 }
 

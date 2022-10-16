@@ -39,34 +39,15 @@ resource "aws_route" "to_internet_gateway" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.msk_demo.id
 }
-resource "aws_subnet" "msk_demo1" {
-  availability_zone = "${var.region}a"
-  cidr_block        = var.vpc_subnet_cidr_blocks.subnet1
-  tags = {
-    "environment" = var.environment
-    "Name"        = "${var.project}-subnet-1"
-    "project"     = var.project
-  }
-  vpc_id = aws_vpc.msk_demo.id
-}
 
-resource "aws_subnet" "msk_demo2" {
-  availability_zone = "${var.region}b"
-  cidr_block        = var.vpc_subnet_cidr_blocks.subnet2
-  tags = {
-    "environment" = var.environment
-    "Name"        = "${var.project}-subnet-2"
-    "project"     = var.project
-  }
-  vpc_id = aws_vpc.msk_demo.id
-}
+resource "aws_subnet" "msk_demo" {
+  for_each = var.vpc_subnets
 
-resource "aws_subnet" "msk_demo3" {
-  availability_zone = "${var.region}c"
-  cidr_block        = var.vpc_subnet_cidr_blocks.subnet3
+  availability_zone = "${var.region}${each.value.region_suffix}"
+  cidr_block        = each.value.cidr_block
   tags = {
     "environment" = var.environment
-    "Name"        = "${var.project}-subnet-3"
+    "Name"        = "${var.project}-subnet-${each.key}"
     "project"     = var.project
   }
   vpc_id = aws_vpc.msk_demo.id
@@ -107,11 +88,7 @@ resource "aws_s3_bucket_acl" "broker_logs_bucket_acl" {
 resource "aws_msk_cluster" "msk_cluster" {
   broker_node_group_info {
     az_distribution = "DEFAULT"
-    client_subnets = [
-      aws_subnet.msk_demo1.id,
-      aws_subnet.msk_demo2.id,
-      aws_subnet.msk_demo3.id,
-    ]
+    client_subnets  = [for k, v in var.vpc_subnets : aws_subnet.msk_demo[k].id]
     connectivity_info {
       public_access {
         type = "DISABLED"
