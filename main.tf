@@ -86,6 +86,10 @@ resource "aws_s3_bucket_acl" "broker_logs_bucket_acl" {
 
 # Creates a provisioned MSK cluster
 resource "aws_msk_cluster" "msk_cluster" {
+  cluster_name           = "${var.project}-msk-cluster"
+  kafka_version          = var.kafka_version
+  number_of_broker_nodes = var.number_of_nodes
+
   broker_node_group_info {
     az_distribution = "DEFAULT"
     client_subnets  = [for k, v in var.vpc_subnets : aws_subnet.msk_demo[k].id]
@@ -105,13 +109,7 @@ resource "aws_msk_cluster" "msk_cluster" {
       }
     }
   }
-  client_authentication {
-    unauthenticated = true
-    sasl {
-      iam = true
-    }
-  }
-  cluster_name = "${var.project}-msk-cluster"
+
   encryption_info {
     encryption_in_transit {
       client_broker = "TLS_PLAINTEXT"
@@ -119,6 +117,7 @@ resource "aws_msk_cluster" "msk_cluster" {
     }
     encryption_at_rest_kms_key_arn = data.aws_kms_key.aws_managed_kafka_key.arn
   }
+
   logging_info {
     broker_logs {
       cloudwatch_logs {
@@ -132,8 +131,14 @@ resource "aws_msk_cluster" "msk_cluster" {
       }
     }
   }
-  number_of_broker_nodes = var.number_of_nodes
-  kafka_version          = var.kafka_version
+
+  client_authentication {
+    unauthenticated = true
+    sasl {
+      iam = true
+    }
+  }
+
   tags = {
     "environment" = var.environment
     "Name"        = "${var.project}-msk-cluster"
