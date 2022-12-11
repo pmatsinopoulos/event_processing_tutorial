@@ -1,0 +1,9 @@
+{
+  "name": "live_listening_event_producer",
+  "version": "1.0.0",
+  "main": "app.js",
+  "author": "Panagiotis Matsinopoulos",
+  "license": "MIT",
+  "private": false,
+  "type": "module"
+}
