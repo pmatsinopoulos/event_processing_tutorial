@@ -1,4 +1,3 @@
-data "aws_caller_identity" "current_user" {}
 variable "company_name" {
   type        = string
   description = "This is going to be used as a prefix before the project name for resources that require a global naming uniqueness, like S3."
