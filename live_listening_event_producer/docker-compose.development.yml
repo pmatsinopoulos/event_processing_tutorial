@@ -1,5 +1,7 @@
 services:
   live_listening_event_producer:
+    depends_on:
+      - kafka
     image: msk-demo/live_listening_event_producer_lambda
     build: '.'
     ports:
