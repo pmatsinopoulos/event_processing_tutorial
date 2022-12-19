@@ -25,6 +25,7 @@ brokers = {
 
 number_of_nodes = 3
 kafka_version   = "3.2.0"
+scala_version   = "2.13"
 aws_ec2_client = {
   key_pair      = "me-ireland"
   instance_type = "t2.micro"

@@ -85,6 +85,12 @@ variable "kafka_version" {
   nullable    = false
 }
 
+variable "scala_version" {
+  type        = string
+  description = "The Scala version the Kafka binary is built for"
+  nullable    = false
+}
+
 variable "aws_ec2_client" {
   type = object({
     key_pair      = string
