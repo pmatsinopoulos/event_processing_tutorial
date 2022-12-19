@@ -85,4 +85,20 @@ resource "aws_instance" "client" {
     "Name"        = "${var.project}-client-machine"
     "project"     = var.project
   }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = self.public_ip
+      private_key = file("~/.ssh/${var.aws_ec2_client.key_pair}.pem")
+    }
+
+    inline = [
+      "sudo yum -y install java-1.8.0",
+      "wget https://archive.apache.org/dist/kafka/${var.kafka_version}/${local.kafka_tar_archive}.tgz",
+      "tar -xvf ${local.kafka_tar_archive}.tgz",
+      "echo 'security.protocol=PLAINTEXT' > ./${local.kafka_tar_archive}/bin/client.properties"
+    ]
+  }
 }
