@@ -86,6 +86,15 @@ resource "aws_instance" "client" {
     "project"     = var.project
   }
 
+  user_data = <<EOF
+    #!/bin/bash
+
+    grep 'export KAFKA_BROKERS' /home/ec2-user/.bashrc
+    if [ $? -eq 1 ]; then
+      echo "export KAFKA_BROKERS='${aws_msk_cluster.msk_cluster.bootstrap_brokers}'" >> /home/ec2-user/.bashrc
+    fi
+  EOF
+
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
