@@ -57,11 +57,11 @@ data "aws_kms_key" "aws_managed_kafka_key" {
   key_id = var.aws_managed_kafka_key
 }
 
-resource "aws_cloudwatch_log_group" "msk_demo" {
-  name = "${var.project}-cloudwatch-log-group"
+resource "aws_cloudwatch_log_group" "kafka_brokers_log" {
+  name = "${var.project}-kafka-brokers-log"
   tags = {
     "environment" = var.environment
-    "Name"        = "${var.project}-cloudwatch-log-group"
+    "Name"        = "${var.project}-kafka-brokers-log"
     "project"     = var.project
   }
 }
@@ -122,7 +122,7 @@ resource "aws_msk_cluster" "msk_cluster" {
     broker_logs {
       cloudwatch_logs {
         enabled   = true
-        log_group = aws_cloudwatch_log_group.msk_demo.id
+        log_group = aws_cloudwatch_log_group.kafka_brokers_log.id
       }
       s3 {
         enabled = true
