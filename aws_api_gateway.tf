@@ -20,32 +20,32 @@ resource "aws_api_gateway_resource" "analytics_events" {
 }
 
 resource "aws_api_gateway_method" "analytics_events_post" {
-  authorization = "NONE"
-  http_method   = "POST"
-  resource_id   = aws_api_gateway_resource.analytics_events.id
   rest_api_id   = aws_api_gateway_rest_api.analytics.id
+  resource_id   = aws_api_gateway_resource.analytics_events.id
+  http_method   = "POST"
+  authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "analytics_events_post_lambda" {
-  http_method             = "POST"
-  resource_id             = aws_api_gateway_resource.analytics_events.id
   rest_api_id             = aws_api_gateway_rest_api.analytics.id
+  resource_id             = aws_api_gateway_resource.analytics_events.id
+  http_method             = aws_api_gateway_method.analytics_events_post.http_method
   type                    = "AWS"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.live_listening_event_producer.invoke_arn
 }
 
 resource "aws_api_gateway_method_response" "analytics_events_post" {
-  http_method = aws_api_gateway_method.analytics_events_post.http_method
-  resource_id = aws_api_gateway_resource.analytics_events.id
   rest_api_id = aws_api_gateway_rest_api.analytics.id
+  resource_id = aws_api_gateway_resource.analytics_events.id
+  http_method = aws_api_gateway_method.analytics_events_post.http_method
   status_code = "200"
 }
 
 resource "aws_api_gateway_integration_response" "analytics_events_post" {
-  http_method = aws_api_gateway_method.analytics_events_post.http_method
-  resource_id = aws_api_gateway_resource.analytics_events.id
   rest_api_id = aws_api_gateway_rest_api.analytics.id
+  resource_id = aws_api_gateway_resource.analytics_events.id
+  http_method = aws_api_gateway_method.analytics_events_post.http_method
   status_code = aws_api_gateway_method_response.analytics_events_post.status_code
 
   depends_on = [
@@ -60,20 +60,6 @@ resource "aws_lambda_permission" "lambda_permission_for_analytics_api" {
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.analytics.execution_arn}/*/*/*"
-}
-
-
-resource "aws_cloudwatch_log_group" "analytics_api" {
-  name = "${var.project}-cloudwatch-log-group-for-analytics-api"
-  tags = {
-    "environment" = var.environment
-    "Name"        = "${var.project}-cloudwatch-log-group-for-analytics-api"
-    "project"     = var.project
-  }
-}
-
-data "aws_iam_policy" "aws_api_gateway_push_to_cloudwatch_logs" {
-  arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
 
 resource "aws_iam_role" "api_gateway_access_to_logs" {
@@ -97,6 +83,10 @@ resource "aws_iam_role" "api_gateway_access_to_logs" {
     "Name"        = "${var.project}/LiveListeningEventProducerLambdaExecRole"
     "project"     = var.project
   }
+}
+
+data "aws_iam_policy" "aws_api_gateway_push_to_cloudwatch_logs" {
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
 
 resource "aws_iam_role_policy_attachment" "aws_api_gateway_cloudwatch_logs_role" {
@@ -127,12 +117,19 @@ resource "aws_api_gateway_deployment" "analytics" {
   }
 }
 
-resource "aws_api_gateway_stage" "analytics_v1" {
-  deployment_id = aws_api_gateway_deployment.analytics.id
-  rest_api_id   = aws_api_gateway_rest_api.analytics.id
-  stage_name    = "v1"
+resource "aws_cloudwatch_log_group" "analytics_api" {
+  name = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.analytics.id}/v1"
+  tags = {
+    "environment" = var.environment
+    "Name"        = "${var.project}-cloudwatch-log-group-for-analytics-api"
+    "project"     = var.project
+  }
+}
 
-  depends_on = [aws_cloudwatch_log_group.analytics_api]
+resource "aws_api_gateway_stage" "analytics_v1" {
+  rest_api_id   = aws_api_gateway_rest_api.analytics.id
+  deployment_id = aws_api_gateway_deployment.analytics.id
+  stage_name    = "v1"
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.analytics_api.arn
@@ -160,9 +157,9 @@ resource "aws_api_gateway_stage" "analytics_v1" {
 }
 
 resource "aws_api_gateway_method_settings" "analytics_events_post" {
-  method_path = "*/*"
   rest_api_id = aws_api_gateway_rest_api.analytics.id
   stage_name  = aws_api_gateway_stage.analytics_v1.stage_name
+  method_path = "*/*"
   settings {
     metrics_enabled        = true
     logging_level          = "INFO"
