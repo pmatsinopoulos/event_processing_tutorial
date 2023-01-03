@@ -98,3 +98,10 @@ variable "aws_ec2_client" {
   })
   nullable = false
 }
+
+variable "topic_name" {
+  type        = string
+  description = "The name of the topic the events will be published to"
+  nullable    = false
+  default     = "live-listening-events"
+}
