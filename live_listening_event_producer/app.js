@@ -2,11 +2,12 @@ import { Kafka } from "kafkajs";
 console.log("Lambda function starting...");
 
 const brokers = process.env.KAFKA_BROKERS.split(",");
+const topicName = process.env.TOPIC_NAME;
 
 console.debug("Brokers: ", brokers);
 
 const kafka = new Kafka({
-  clientId: "live-listening-events-producer",
+  clientId: `${topicName}-producer`,
   brokers: brokers,
 });
 
@@ -34,7 +35,7 @@ export const handler = async (event, context) => {
         const broadcastId = event["broadcastId"];
         try {
           await producer.send({
-            topic: "live-listening-events",
+            topic: topicName,
             allowAutoTopicCreation: true,
             messages: [
               {
