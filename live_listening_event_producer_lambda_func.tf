@@ -41,6 +41,7 @@ resource "aws_lambda_function" "live_listening_event_producer" {
   environment {
     variables = {
       KAFKA_BROKERS = aws_msk_cluster.msk_cluster.bootstrap_brokers
+      TOPIC_NAME    = var.topic_name
     }
   }
 
