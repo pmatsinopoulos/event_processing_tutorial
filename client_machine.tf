@@ -93,6 +93,11 @@ resource "aws_instance" "client" {
     if [ $? -eq 1 ]; then
       echo "export KAFKA_BROKERS='${aws_msk_cluster.msk_cluster.bootstrap_brokers}'" >> /home/ec2-user/.bashrc
     fi
+
+    grep 'export TOPIC_NAME' /home/ec2-user/.bashrc
+    if [ $? -eq 1 ]; then
+      echo "export TOPIC_NAME='${var.topic_name}'" >> /home/ec2-user/.bashrc
+    fi
   EOF
 
   provisioner "remote-exec" {
