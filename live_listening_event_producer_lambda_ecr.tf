@@ -1,7 +1,9 @@
-data "aws_caller_identity" "current_user" {}
-
 resource "aws_ecr_repository" "live_listening_event_producer_lambda" {
   name = "${var.project}/live_listening_event_producer_lambda"
+
+  depends_on = [
+    null_resource.aws_ecr_login
+  ]
 
   force_delete = true
 
