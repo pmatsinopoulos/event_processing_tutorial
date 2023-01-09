@@ -1,7 +1,11 @@
+volumes:
+  db_data:
+
 services:
   live_listening_event_consumer:
     depends_on:
       - kafka
+      - db
     image: msk-demo/live_listening_event_consumer
     build: '.'
     environment:
@@ -30,3 +34,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_DELETE_TOPIC_ENABLE: true
+
+  db:
+    image: postgres:15.1
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
