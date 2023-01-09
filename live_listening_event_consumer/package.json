@@ -1,0 +1,14 @@
+{
+  "name": "live_listening_event_consumer",
+  "version": "1.0.0",
+  "main": "app.js",
+  "author": "Panagiotis Matsinopoulos",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "consume": "node app.js"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.3"
+  }
+}

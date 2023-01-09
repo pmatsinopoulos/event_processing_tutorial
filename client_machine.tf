@@ -112,7 +112,8 @@ resource "aws_instance" "client" {
       "sudo yum -y install java-1.8.0",
       "wget https://archive.apache.org/dist/kafka/${var.kafka_version}/${local.kafka_tar_archive}.tgz",
       "tar -xvf ${local.kafka_tar_archive}.tgz",
-      "echo 'security.protocol=PLAINTEXT' > ./${local.kafka_tar_archive}/bin/client.properties"
+      "echo 'security.protocol=PLAINTEXT' > ./${local.kafka_tar_archive}/bin/client.properties",
+      "(cd ${local.kafka_tar_archive} && ./bin/kafka-topics.sh --create --topic ${var.topic_name} --bootstrap-server ${aws_msk_cluster.msk_cluster.bootstrap_brokers} --replication-factor 3 --partitions 1)"
     ]
   }
 }
