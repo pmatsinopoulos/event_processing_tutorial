@@ -11,6 +11,11 @@ services:
     environment:
       KAFKA_BROKERS: "kafka:9092"
       TOPIC_NAME: "live-listening-events"
+      DB_DATABASE: analytics_development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -39,5 +44,7 @@ services:
     image: postgres:15.1
     environment:
       POSTGRES_PASSWORD: postgres
+    ports:
+      - 25432:5432
     volumes:
       - db_data:/var/lib/postgresql/data
