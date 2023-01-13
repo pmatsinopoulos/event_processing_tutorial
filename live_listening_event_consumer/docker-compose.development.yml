@@ -41,7 +41,9 @@ services:
       KAFKA_DELETE_TOPIC_ENABLE: true
 
   db:
-    image: postgres:15.1
+    build:
+      context: .
+      dockerfile: Dockerfile.development.postgres
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
