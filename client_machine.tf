@@ -100,20 +100,30 @@ resource "aws_instance" "client" {
     fi
   EOF
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      host        = self.public_ip
-      private_key = file("~/.ssh/${var.aws_ec2_client.key_pair}.pem")
-    }
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    host        = self.public_ip
+    private_key = file("~/.ssh/${var.aws_ec2_client.key_pair}.pem")
+  }
 
+  provisioner "file" {
+    source      = "live_listening_event_consumer/initialize_db.sh"
+    destination = "/home/ec2-user/initialize_db.sh"
+  }
+
+  provisioner "remote-exec" {
     inline = [
       "sudo yum -y install java-1.8.0",
       "wget https://archive.apache.org/dist/kafka/${var.kafka_version}/${local.kafka_tar_archive}.tgz",
       "tar -xvf ${local.kafka_tar_archive}.tgz",
       "echo 'security.protocol=PLAINTEXT' > ./${local.kafka_tar_archive}/bin/client.properties",
-      "(cd ${local.kafka_tar_archive} && ./bin/kafka-topics.sh --create --topic ${var.topic_name} --bootstrap-server ${aws_msk_cluster.msk_cluster.bootstrap_brokers} --replication-factor 3 --partitions 1)"
+      "(cd ${local.kafka_tar_archive} && ./bin/kafka-topics.sh --create --topic ${var.topic_name} --bootstrap-server ${aws_msk_cluster.msk_cluster.bootstrap_brokers} --replication-factor 3 --partitions 1)",
+      "sudo amazon-linux-extras enable postgresql14",
+      "sudo yum clean metadata",
+      "sudo yum -y install postgresql",
+      "chmod u+x /home/ec2-user/initialize_db.sh",
+      "DB_HOST=${aws_db_instance.analytics.address} DB_PORT=${aws_db_instance.analytics.port} DB_USERNAME=${aws_db_instance.analytics.username} DB_DATABASE=${var.db_analytics.name} PGPASSWORD=${var.db_analytics.password} /home/ec2-user/initialize_db.sh"
     ]
   }
 }
