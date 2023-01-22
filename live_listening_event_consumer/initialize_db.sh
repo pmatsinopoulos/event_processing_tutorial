@@ -7,10 +7,25 @@ echo "DB_HOST=*${DB_HOST}*"
 echo "DB_PORT=*${DB_PORT}*"
 echo "DB_USERNAME=*${DB_USERNAME}*"
 
-docker-compose -f docker-compose.development.yml up db -d
+if [ -z "${DB_DATABASE}" ]
+then
+  DB_DATABASE=analytics_development
+fi
 
-echo "...waiting for db to be up and running"
-sleep 2
+if [ -z "${DB_HOST}" ]
+then
+  DB_HOST=localhost
+fi
+
+if [ -z "${DB_PORT}" ]
+then
+  DB_PORT=5432
+fi
+
+if [ -z "${DB_USERNAME}" ]
+then
+  DB_USERNAME=postgres
+fi
 
 psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USERNAME} <<-EOSQL
   SELECT 'CREATE DATABASE ${DB_DATABASE}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${DB_DATABASE}')\gexec
