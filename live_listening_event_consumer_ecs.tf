@@ -59,6 +59,26 @@ resource "aws_ecs_task_definition" "live_listening_event_consumer" {
         {
           name  = "TOPIC_NAME"
           value = "${var.topic_name}"
+        },
+        {
+          name  = "DB_USERNAME"
+          value = "${aws_db_instance.analytics.username}"
+        },
+        {
+          name  = "DB_HOST"
+          value = "${aws_db_instance.analytics.address}"
+        },
+        {
+          name  = "DB_PORT"
+          value = "${tostring(aws_db_instance.analytics.port)}"
+        },
+        {
+          name  = "DB_DATABASE"
+          value = "${var.db_analytics.name}"
+        },
+        {
+          name  = "DB_PASSWORD"
+          value = "${var.db_analytics.password}"
         }
       ]
       logConfiguration = {

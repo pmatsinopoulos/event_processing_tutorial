@@ -1,0 +1,4 @@
+FROM postgres:15.1
+
+COPY initialize_db.sh .
+RUN chmod u+x initialize_db.sh

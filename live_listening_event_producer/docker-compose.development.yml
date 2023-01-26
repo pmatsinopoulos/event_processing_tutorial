@@ -1,7 +1,8 @@
 services:
   live_listening_event_producer:
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     image: msk-demo/live_listening_event_producer_lambda
     build: '.'
     ports:
@@ -17,13 +18,26 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
 
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - 29092:9092
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181

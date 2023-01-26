@@ -105,3 +105,14 @@ variable "topic_name" {
   nullable    = false
   default     = "live-listening-events"
 }
+
+variable "db_analytics" {
+  type = object({
+    username = string
+    password = string
+    port     = number
+    name     = string
+  })
+  nullable  = false
+  sensitive = true
+}
